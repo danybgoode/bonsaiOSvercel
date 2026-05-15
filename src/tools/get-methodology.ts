@@ -1,4 +1,8 @@
-import { getNotionClient, findPageInSubsection, getPageContent } from "../notion";
+import { getNotionClient, findChildPageByName, getPageContent } from "../notion";
+
+// Atlas OS Methodology Docs root page — child pages are the source of truth per section.
+// Updating content in Notion is reflected immediately; no redeploy needed.
+const METHODOLOGY_DOCS_PAGE_ID = "361fe1a5-f192-8130-818f-fe63b701f407";
 
 const SECTION_PAGE_NAMES: Record<string, string> = {
   northstar: "North Star",
@@ -10,20 +14,21 @@ const SECTION_PAGE_NAMES: Record<string, string> = {
 };
 
 export async function getMethodology(section: string): Promise<string> {
-  const rootId = process.env.METHODOLOGY_ROOT_PAGE_ID;
-  if (!rootId) throw new Error("METHODOLOGY_ROOT_PAGE_ID is not set");
-
   const notion = getNotionClient();
   const pageName = SECTION_PAGE_NAMES[section];
   if (!pageName) throw new Error(`Unknown section: ${section}`);
 
-  const pageId = await findPageInSubsection(
+  const pageId = await findChildPageByName(
     notion,
-    rootId,
-    "Methodology",
+    METHODOLOGY_DOCS_PAGE_ID,
     pageName
   );
-  const content = await getPageContent(notion, pageId);
+  if (!pageId) {
+    throw new Error(
+      `Section "${pageName}" not found in Atlas OS Methodology Docs`
+    );
+  }
 
+  const content = await getPageContent(notion, pageId);
   return `# ${pageName} Methodology\n\n${content}`;
 }

@@ -4,13 +4,13 @@ The Bonsai product methodology OS. Run workshops, set up your Notion workspace, 
 
 ## Add to Claude
 
-**One-click install:**
+**One-click install** — opens the Claude connector modal:
 
 ```
-https://claude.ai/integrations/connect?mcp_server_url=https%3A%2F%2Fbonsaios-mcp.vercel.app%2Fapi%2Fmcp
+https://claude.ai/customize/connectors?modal=add-custom-connector
 ```
 
-**Or manually in Claude settings → Integrations → Add MCP Server:**
+Paste this URL when prompted:
 
 ```
 https://bonsaios-mcp.vercel.app/api/mcp
