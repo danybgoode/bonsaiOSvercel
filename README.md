@@ -7,19 +7,19 @@ The Bonsai product methodology OS. Run workshops, set up your Notion workspace, 
 **One-click install:**
 
 ```
-https://claude.ai/integrations/connect?mcp_server_url=https%3A%2F%2Fbonsaios.vercel.app%2Fapi%2Fmcp
+https://claude.ai/integrations/connect?mcp_server_url=https%3A%2F%2Fbonsaios-mcp.vercel.app%2Fapi%2Fmcp
 ```
 
 **Or manually in Claude settings → Integrations → Add MCP Server:**
 
 ```
-https://bonsaios.vercel.app/api/mcp
+https://bonsaios-mcp.vercel.app/api/mcp
 ```
 
 **Or in Claude Code CLI:**
 
 ```bash
-claude mcp add bonsaios https://bonsaios.vercel.app/api/mcp
+claude mcp add bonsaios https://bonsaios-mcp.vercel.app/api/mcp
 ```
 
 ---
@@ -91,6 +91,8 @@ npm run dev
 ```
 
 The MCP endpoint runs at `http://localhost:3000/api/mcp`.
+
+Production endpoint: `https://bonsaios-mcp.vercel.app/api/mcp`
 
 ---
 
