@@ -1,7 +1,7 @@
 import { createMcpHandler } from "mcp-handler";
 import { z } from "zod";
-import { runPlay } from "@/src/tools/run-play";
-import { getMethodology } from "@/src/tools/get-methodology";
+import { runPlay, PLAY_NAMES } from "@/src/tools/run-play";
+import { getMethodology, METHODOLOGY_SECTIONS } from "@/src/tools/get-methodology";
 import { setupNotionWorkspace } from "@/src/tools/setup-notion-workspace";
 import { createNorthstarPage } from "@/src/tools/create-northstar-page";
 import { scoreBacklog } from "@/src/tools/score-backlog";
@@ -13,26 +13,18 @@ const handler = createMcpHandler(
       {
         title: "Run Play",
         description:
-          "Fetches a Bonsai OS play from Notion and returns it as a structured prompt sequence for Claude to execute. Use this when the user asks to run a workshop or play.",
+          "Returns a Bonsai Academy play as a structured facilitation script for Claude to run with the user, step by step. Use this when the user asks to run a workshop or play: onboarding, the North Star workshop, the PMF narrative or risk validation.",
         inputSchema: {
           name: z
-            .enum([
-              "onboarding",
-              "northstar",
-              "pmf_narrative",
-              "risk_validation",
-              "sprint_planning",
-              "standup",
-              "experiment_log",
-            ])
+            .enum(PLAY_NAMES)
             .describe(
-              "The play to run. Options: onboarding, northstar, pmf_narrative, risk_validation, sprint_planning, standup, experiment_log"
+              "The play to run. Options: onboarding, northstar, pmf_narrative, risk_validation"
             ),
         },
       },
       async ({ name }) => {
         try {
-          const content = await runPlay(name);
+          const content = runPlay(name);
           return { content: [{ type: "text" as const, text: content }] };
         } catch (err) {
           const msg = err instanceof Error ? err.message : String(err);
@@ -49,18 +41,16 @@ const handler = createMcpHandler(
       {
         title: "Get Methodology",
         description:
-          "Returns the Bonsai OS methodology content for a given section. Use when the user wants to understand the framework behind a topic.",
+          "Returns the Bonsai Academy methodology for a given section. Use when the user wants to understand the framework behind a topic.",
         inputSchema: {
           section: z
-            .enum(["northstar", "pmf", "risk", "scrum", "kanban", "financial"])
-            .describe(
-              "Methodology section to retrieve: northstar, pmf, risk, scrum, kanban, or financial"
-            ),
+            .enum(METHODOLOGY_SECTIONS)
+            .describe("Methodology section to retrieve: northstar, pmf or risk"),
         },
       },
       async ({ section }) => {
         try {
-          const content = await getMethodology(section);
+          const content = getMethodology(section);
           return { content: [{ type: "text" as const, text: content }] };
         } catch (err) {
           const msg = err instanceof Error ? err.message : String(err);

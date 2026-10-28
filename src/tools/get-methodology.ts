@@ -1,34 +1,27 @@
-import { getNotionClient, findChildPageByName, getPageContent } from "../notion";
+import { METHODOLOGY, PLAYS } from "../content";
 
-// Atlas OS Methodology Docs root page — child pages are the source of truth per section.
-// Updating content in Notion is reflected immediately; no redeploy needed.
-const METHODOLOGY_DOCS_PAGE_ID = "361fe1a5-f192-8130-818f-fe63b701f407";
+// Each section is the shared methodology plus the core concepts of the workshop that teaches it.
+const SECTION_PLAYS = {
+  northstar: "northstar",
+  pmf: "pmf_narrative",
+  risk: "risk_validation",
+} as const;
 
-const SECTION_PAGE_NAMES: Record<string, string> = {
-  northstar: "North Star",
-  pmf: "PMF",
-  risk: "Risk",
-  scrum: "Scrum",
-  kanban: "Kanban",
-  financial: "Financial",
-};
+export const METHODOLOGY_SECTIONS = ["northstar", "pmf", "risk"] as const;
+export type MethodologySection = (typeof METHODOLOGY_SECTIONS)[number];
 
-export async function getMethodology(section: string): Promise<string> {
-  const notion = getNotionClient();
-  const pageName = SECTION_PAGE_NAMES[section];
-  if (!pageName) throw new Error(`Unknown section: ${section}`);
+// The "🧠 Core Concepts" block of a play, up to its "📋" output section.
+function coreConcepts(play: string): string {
+  const start = play.indexOf("🧠");
+  if (start === -1) return "";
+  const end = play.indexOf("📋", start);
+  return play
+    .slice(play.lastIndexOf("\n", start) + 1, end === -1 ? undefined : play.lastIndexOf("\n", end))
+    .trim();
+}
 
-  const pageId = await findChildPageByName(
-    notion,
-    METHODOLOGY_DOCS_PAGE_ID,
-    pageName
-  );
-  if (!pageId) {
-    throw new Error(
-      `Section "${pageName}" not found in Atlas OS Methodology Docs`
-    );
-  }
-
-  const content = await getPageContent(notion, pageId);
-  return `# ${pageName} Methodology\n\n${content}`;
+export function getMethodology(section: MethodologySection): string {
+  const play = PLAYS[SECTION_PLAYS[section]];
+  if (!play) throw new Error(`Unknown section: ${section}`);
+  return `${METHODOLOGY.trim()}\n\n---\n\n${coreConcepts(play)}`;
 }

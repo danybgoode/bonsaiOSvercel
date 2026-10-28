@@ -1,37 +1,12 @@
-import { getNotionClient, findPageInSubsection, getPageContent } from "../notion";
+import { PLAYS } from "../content";
 
-const PLAY_PAGE_NAMES: Record<string, string> = {
-  onboarding: "Onboarding",
-  northstar: "North Star",
-  pmf_narrative: "PMF Narrative",
-  risk_validation: "Risk Validation",
-  sprint_planning: "Sprint Planning",
-  standup: "Standup",
-  experiment_log: "Experiment Log",
-};
+// Plays ship inside the deployment (content/plays/*.md), so a workshop can never fail on a missing Notion page or
+// a revoked integration token. Edit the Markdown and redeploy to change one.
+export const PLAY_NAMES = ["onboarding", "northstar", "pmf_narrative", "risk_validation"] as const;
+export type PlayName = (typeof PLAY_NAMES)[number];
 
-// Direct Notion page IDs for plays that have a known canonical page.
-// Fetch live from Notion — no redeploy needed when content changes.
-const PLAY_DIRECT_PAGE_IDS: Partial<Record<string, string>> = {
-  onboarding: "361fe1a5-f192-8165-b2a7-fbeb32b61e6e",
-};
-
-export async function runPlay(name: string): Promise<string> {
-  const notion = getNotionClient();
-  const pageName = PLAY_PAGE_NAMES[name];
-  if (!pageName) throw new Error(`Unknown play: ${name}`);
-
-  const directId = PLAY_DIRECT_PAGE_IDS[name];
-  let pageId: string;
-
-  if (directId) {
-    pageId = directId;
-  } else {
-    const rootId = process.env.METHODOLOGY_ROOT_PAGE_ID;
-    if (!rootId) throw new Error("METHODOLOGY_ROOT_PAGE_ID is not set");
-    pageId = await findPageInSubsection(notion, rootId, "Plays", pageName);
-  }
-
-  const content = await getPageContent(notion, pageId);
-  return `# ${pageName} Play\n\n${content}`;
+export function runPlay(name: PlayName): string {
+  const content = PLAYS[name];
+  if (!content) throw new Error(`Unknown play: ${name}`);
+  return content;
 }
